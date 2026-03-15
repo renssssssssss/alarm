@@ -505,7 +505,9 @@ function enqueueAlarm(alarm) {
 
   pendingQueue.push(alarm);
 
-  // オーバーレイが表示されていない場合のみ即座に処理開始
+  // currentAlarm が null（＝オーバーレイ非表示）のときだけ処理開始する。
+  // processNextAlarm() の先頭で currentAlarm を即セットするため、
+  // 連続呼び出しされても二重起動にならない。
   if (!currentAlarm) {
     processNextAlarm();
   }
@@ -518,7 +520,12 @@ function processNextAlarm() {
     return;
   }
 
+  // キューの先頭を取り出す前に currentAlarm をセット済みにする。
+  // これにより enqueueAlarm からの二重呼び出しをブロックできる。
   currentAlarm = pendingQueue.shift();
+
+  stopAutoStopCountdown();  // 前のカウントダウンが残っていれば確実にリセット
+
   playAlarmSound(currentAlarm);
   showFireOverlay(currentAlarm);
 
@@ -604,12 +611,14 @@ function dismissCurrentAlarm() {
     fireAudio = null;
   }
 
+  // currentAlarm を先に null にしてから分岐する。
+  // processNextAlarm() が currentAlarm を即セットするため、
+  // enqueueAlarm からの割り込みがあっても二重起動しない。
+  currentAlarm = null;
+
   if (pendingQueue.length > 0) {
-    // 次のアラームを処理
     processNextAlarm();
   } else {
-    // すべて処理済み — オーバーレイを閉じる
-    currentAlarm = null;
     const overlay = document.getElementById('fire-overlay');
     overlay.classList.remove('show');
     overlay.hidden = true;
