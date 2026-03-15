@@ -1,0 +1,6 @@
+[
+  { "id": "morning",  "label": "「さあ、いくぞ！」.mp3",  "file": "「さあ、いくぞ！」.mp3"  },
+  { "id": "digital",  "label": "「ついにお迎えが…」.mp3",  "file": "「ついにお迎えが…」.mp3"  },
+  { "id": "chime",    "label": "「もう…だめ…」.mp3",          "file": "「もう…だめ…」.mp3"    },
+  { "id": "birds",    "label": "8bit-music",          "file": "Pixel_Panic_Party.mp3"    }
+]

@@ -565,3 +565,169 @@ body {
 }
 
 .toast.show { transform: translateX(-50%) translateY(0); }
+
+
+/* ------------------------------------------------------------
+   Audio source tabs
+   ------------------------------------------------------------ */
+.audio-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 12px;
+  background: #f1efe8;
+  border-radius: 8px;
+  padding: 3px;
+}
+
+.audio-tab {
+  font-family: 'Syne', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  flex: 1;
+  padding: 6px 0;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #888780;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.audio-tab.active {
+  background: #fff;
+  color: #1a1a18;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+
+/* ------------------------------------------------------------
+   Preset sound list
+   ------------------------------------------------------------ */
+.preset-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.preset-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border: 0.5px solid rgba(0,0,0,0.12);
+  border-radius: 8px;
+  background: #f1efe8;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.preset-item:hover { background: #e8e6df; }
+
+.preset-item.selected {
+  border-color: #185FA5;
+  background: #E6F1FB;
+}
+
+.preset-item-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(0,0,0,0.25);
+  flex-shrink: 0;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.preset-item.selected .preset-item-dot {
+  background: #185FA5;
+  border-color: #185FA5;
+}
+
+.preset-item-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a1a18;
+  flex: 1;
+}
+
+.preset-item-play {
+  font-size: 11px;
+  font-weight: 600;
+  color: #5f5e5a;
+  background: transparent;
+  border: 0.5px solid rgba(0,0,0,0.18);
+  border-radius: 6px;
+  padding: 3px 10px;
+  cursor: pointer;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+
+.preset-item-play:hover { background: rgba(0,0,0,0.06); }
+
+.preset-loading {
+  font-size: 13px;
+  color: #888780;
+  padding: 8px 0;
+}
+
+.preset-error {
+  font-size: 12px;
+  color: #A32D2D;
+  padding: 8px 0;
+}
+
+
+/* ------------------------------------------------------------
+   Auto-stop setting
+   ------------------------------------------------------------ */
+.autostop-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.autostop-label {
+  font-size: 14px;
+  color: #1a1a18;
+  cursor: default;
+}
+
+.autostop-detail {
+  /* shown/hidden via JS (hidden attr) */
+}
+
+
+/* ------------------------------------------------------------
+   Fire overlay — auto-stop countdown
+   ------------------------------------------------------------ */
+.fire-autostop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 220px;
+}
+
+.fire-autostop-bar-wrap {
+  width: 100%;
+  height: 3px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.fire-autostop-bar {
+  height: 100%;
+  width: 100%;
+  background: #E6F1FB;
+  border-radius: 2px;
+  transform-origin: left;
+  /* duration set dynamically via JS */
+  transition: width linear;
+}
+
+.fire-autostop-label {
+  font-size: 12px;
+  color: #85B7EB;
+}

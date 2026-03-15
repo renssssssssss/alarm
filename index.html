@@ -65,11 +65,30 @@
     <!-- アラーム音設定 -->
     <div class="card">
       <div class="card-label">アラーム音</div>
-      <div class="file-zone" id="file-zone">
-        <input type="file" id="audio-file" accept="audio/*">
-        <div class="file-zone-text">クリックまたはドロップで音声ファイルを選択</div>
-        <div class="file-zone-name" id="file-name"></div>
+
+      <!-- 音源選択タブ -->
+      <div class="audio-tabs">
+        <button class="audio-tab active" data-tab="preset">プリセット</button>
+        <button class="audio-tab"        data-tab="upload">ファイルを選択</button>
       </div>
+
+      <!-- プリセット一覧 -->
+      <div class="audio-panel" id="panel-preset">
+        <div class="preset-list" id="preset-list">
+          <!-- JSで動的生成 -->
+        </div>
+      </div>
+
+      <!-- ファイルアップロード -->
+      <div class="audio-panel" id="panel-upload" hidden>
+        <div class="file-zone" id="file-zone">
+          <input type="file" id="audio-file" accept="audio/*">
+          <div class="file-zone-text">クリックまたはドロップで音声ファイルを選択</div>
+          <div class="file-zone-name" id="file-name"></div>
+        </div>
+      </div>
+
+      <!-- 音量・プレビュー（共通） -->
       <div class="volume-row">
         <span class="vol-label">音量</span>
         <input type="range" id="volume" min="0" max="100" value="80" step="1">
@@ -78,6 +97,22 @@
       <div class="preview-row">
         <button class="btn-secondary" id="preview-btn">▶ プレビュー</button>
         <button class="btn-secondary" id="stop-btn" hidden>■ 停止</button>
+      </div>
+    </div>
+
+    <!-- 自動停止設定 -->
+    <div class="card">
+      <div class="card-label">自動停止</div>
+      <div class="autostop-row">
+        <label class="autostop-label" for="autostop-toggle">アラームを自動で停止する</label>
+        <button class="alarm-toggle on" id="autostop-toggle" aria-label="自動停止オン/オフ"></button>
+      </div>
+      <div class="autostop-detail" id="autostop-detail">
+        <div class="volume-row" style="margin-top: 12px;">
+          <span class="vol-label">停止まで</span>
+          <input type="range" id="autostop-sec" min="5" max="120" value="10" step="5">
+          <span class="vol-val" id="autostop-sec-out" style="width: 48px;">10秒</span>
+        </div>
       </div>
     </div>
 
@@ -101,7 +136,13 @@
     <div class="fire-label" id="fire-label">アラーム</div>
     <div class="fire-url-label" id="fire-url-label"></div>
     <a class="fire-url-btn" id="fire-url-btn" href="#" target="_blank" hidden>このURLを開く →</a>
-    <button class="fire-dismiss" id="fire-dismiss">閉じる</button>
+    <div class="fire-autostop" id="fire-autostop" hidden>
+      <div class="fire-autostop-bar-wrap">
+        <div class="fire-autostop-bar" id="fire-autostop-bar"></div>
+      </div>
+      <div class="fire-autostop-label" id="fire-autostop-label">10秒後に自動停止</div>
+    </div>
+    <button class="fire-dismiss" id="fire-dismiss">今すぐ停止</button>
   </div>
 
   <!-- トースト通知 -->

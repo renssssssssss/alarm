@@ -9,6 +9,8 @@
    ------------------------------------------------------------ */
 const DAYS = ['日', '月', '火', '水', '木', '金', '土'];
 
+const SOUNDS_JSON_PATH = 'sounds/sounds.json';
+
 const POPUP_GUIDE_STEPS = {
   chrome:  ['アドレスバー左の 🔒 アイコンをクリック', '「ポップアップとリダイレクト」→「許可」を選択'],
   firefox: ['アドレスバーの 🔒 アイコンをクリック', '「このサイトのポップアップを許可する」を選択'],
@@ -21,11 +23,13 @@ const POPUP_GUIDE_STEPS = {
 /* ------------------------------------------------------------
    State
    ------------------------------------------------------------ */
-let alarms      = [];   // { id, time, label, url, days, audioUrl, audioName, volume, active, fired }
-let audioBlob   = null;
-let audioUrl    = null;
+let alarms       = [];   // { id, time, label, url, days, audioSrc, audioLabel, volume, autoStop, stopSec, active, fired }
+let audioSrc     = null; // selected audio URL (preset path or blob URL)
+let audioLabel   = null; // display name of selected audio
+let audioBlobUrl = null; // blob URL from uploaded file (needs cleanup on change)
 let previewAudio = null;
-let fireAudio   = null;
+let fireAudio    = null;
+let autoStopTimer = null;
 
 const selectedDays = new Set();
 
@@ -39,9 +43,9 @@ function pad(n) {
 
 function detectBrowser() {
   const ua = navigator.userAgent;
-  if (ua.includes('Edg'))                          return 'edge';
-  if (ua.includes('Chrome'))                       return 'chrome';
-  if (ua.includes('Firefox'))                      return 'firefox';
+  if (ua.includes('Edg'))                              return 'edge';
+  if (ua.includes('Chrome'))                           return 'chrome';
+  if (ua.includes('Firefox'))                          return 'firefox';
   if (ua.includes('Safari') && !ua.includes('Chrome')) return 'safari';
   return 'other';
 }
@@ -124,7 +128,7 @@ function buildDayButtons() {
   const container = document.getElementById('days-row');
   DAYS.forEach((label, index) => {
     const btn = document.createElement('button');
-    btn.className = 'day-btn';
+    btn.className   = 'day-btn';
     btn.textContent = label;
     btn.dataset.day = index;
     btn.addEventListener('click', () => {
@@ -143,14 +147,123 @@ buildDayButtons();
 
 
 /* ------------------------------------------------------------
-   Audio file handling
+   Audio source tabs (Preset / Upload)
+   ------------------------------------------------------------ */
+document.querySelectorAll('.audio-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.audio-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+
+    const target = tab.dataset.tab;
+    document.getElementById('panel-preset').hidden = (target !== 'preset');
+    document.getElementById('panel-upload').hidden = (target !== 'upload');
+
+    stopPreview();
+  });
+});
+
+
+/* ------------------------------------------------------------
+   Preset sound list (loaded from sounds/sounds.json)
+   ------------------------------------------------------------ */
+async function loadPresets() {
+  const container = document.getElementById('preset-list');
+  container.innerHTML = '<div class="preset-loading">読み込み中...</div>';
+
+  let sounds;
+  try {
+    const res = await fetch(SOUNDS_JSON_PATH);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    sounds = await res.json();
+  } catch (e) {
+    container.innerHTML =
+      '<div class="preset-error">プリセットを読み込めませんでした。sounds/sounds.json を確認してください。</div>';
+    return;
+  }
+
+  container.innerHTML = '';
+
+  sounds.forEach(sound => {
+    const soundPath = `sounds/${sound.file}`;
+    const item = document.createElement('div');
+    item.className  = 'preset-item';
+    item.dataset.id = sound.id;
+    item.innerHTML  = `
+      <div class="preset-item-dot"></div>
+      <div class="preset-item-label">${sound.label}</div>
+      <button class="preset-item-play" aria-label="プレビュー">▶</button>
+    `;
+
+    // click row → select
+    item.addEventListener('click', e => {
+      if (e.target.classList.contains('preset-item-play')) return;
+      selectPreset(item, soundPath, sound.label);
+    });
+
+    // preview button
+    const playBtn = item.querySelector('.preset-item-play');
+    playBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      togglePresetPreview(soundPath, playBtn);
+    });
+
+    container.appendChild(item);
+  });
+}
+
+function selectPreset(itemEl, src, label) {
+  document.querySelectorAll('.preset-item').forEach(el => el.classList.remove('selected'));
+  itemEl.classList.add('selected');
+  audioSrc   = src;
+  audioLabel = label;
+
+  // release any uploaded blob
+  if (audioBlobUrl) {
+    URL.revokeObjectURL(audioBlobUrl);
+    audioBlobUrl = null;
+  }
+}
+
+function togglePresetPreview(src, btn) {
+  // if already previewing this track, stop
+  if (previewAudio && previewAudio.src.endsWith(encodeURIComponent(src).replace(/%2F/g, '/'))) {
+    stopPreview();
+    btn.textContent = '▶';
+    return;
+  }
+
+  stopPreview();
+  // reset all play buttons
+  document.querySelectorAll('.preset-item-play').forEach(b => { b.textContent = '▶'; });
+
+  previewAudio = new Audio(src);
+  previewAudio.volume = parseInt(document.getElementById('volume').value) / 100;
+  previewAudio.play().catch(() => showToast('音声ファイルが見つかりません'));
+  previewAudio.addEventListener('ended', () => {
+    btn.textContent = '▶';
+    previewAudio = null;
+  });
+  btn.textContent = '■';
+}
+
+loadPresets();
+
+
+/* ------------------------------------------------------------
+   File upload handling
    ------------------------------------------------------------ */
 function applyAudioFile(file) {
   if (!file || !file.type.startsWith('audio/')) return;
-  audioBlob = file;
-  if (audioUrl) URL.revokeObjectURL(audioUrl);
-  audioUrl = URL.createObjectURL(file);
+
+  if (audioBlobUrl) URL.revokeObjectURL(audioBlobUrl);
+  audioBlobUrl = URL.createObjectURL(file);
+  audioSrc     = audioBlobUrl;
+  audioLabel   = file.name;
+
   document.getElementById('file-name').textContent = file.name;
+
+  // deselect any preset
+  document.querySelectorAll('.preset-item').forEach(el => el.classList.remove('selected'));
 }
 
 document.getElementById('audio-file').addEventListener('change', e => {
@@ -176,7 +289,7 @@ document.getElementById('volume').addEventListener('input', e => {
 
 
 /* ------------------------------------------------------------
-   Preview playback
+   Preview playback (shared stop/start — used by upload tab)
    ------------------------------------------------------------ */
 function stopPreview() {
   if (previewAudio) {
@@ -184,22 +297,42 @@ function stopPreview() {
     previewAudio.currentTime = 0;
     previewAudio = null;
   }
+  // reset all preset play buttons
+  document.querySelectorAll('.preset-item-play').forEach(b => { b.textContent = '▶'; });
   document.getElementById('stop-btn').hidden    = true;
   document.getElementById('preview-btn').hidden = false;
 }
 
 document.getElementById('preview-btn').addEventListener('click', () => {
-  if (!audioUrl) { showToast('音声ファイルを選択してください'); return; }
+  if (!audioSrc) { showToast('音声を選択してください'); return; }
   stopPreview();
-  previewAudio = new Audio(audioUrl);
+  previewAudio = new Audio(audioSrc);
   previewAudio.volume = parseInt(document.getElementById('volume').value) / 100;
-  previewAudio.play();
+  previewAudio.play().catch(() => showToast('音声ファイルが見つかりません'));
   previewAudio.addEventListener('ended', stopPreview);
   document.getElementById('preview-btn').hidden = true;
   document.getElementById('stop-btn').hidden    = false;
 });
 
 document.getElementById('stop-btn').addEventListener('click', stopPreview);
+
+
+/* ------------------------------------------------------------
+   Auto-stop setting
+   ------------------------------------------------------------ */
+const autostopToggle = document.getElementById('autostop-toggle');
+const autostopDetail = document.getElementById('autostop-detail');
+const autostopSecEl  = document.getElementById('autostop-sec');
+const autostopSecOut = document.getElementById('autostop-sec-out');
+
+autostopToggle.addEventListener('click', () => {
+  const isOn = autostopToggle.classList.toggle('on');
+  autostopDetail.hidden = !isOn;
+});
+
+autostopSecEl.addEventListener('input', () => {
+  autostopSecOut.textContent = autostopSecEl.value + '秒';
+});
 
 
 /* ------------------------------------------------------------
@@ -223,7 +356,10 @@ function showPopupBanner() {
 }
 
 document.getElementById('btn-open-setting').addEventListener('click', () => {
-  const settingsUrls = { chrome: 'chrome://settings/content/popups', edge: 'edge://settings/content/popups' };
+  const settingsUrls = {
+    chrome: 'chrome://settings/content/popups',
+    edge:   'edge://settings/content/popups',
+  };
   if (settingsUrls[browser]) {
     window.open(settingsUrls[browser], '_blank');
   } else {
@@ -245,7 +381,6 @@ function dismissBanner() {
   banner.classList.remove('show');
 }
 
-// Show banner when user fills in a URL
 document.getElementById('alarm-url').addEventListener('blur', e => {
   if (e.target.value.trim()) showPopupBanner();
 });
@@ -263,28 +398,29 @@ document.getElementById('add-btn').addEventListener('click', () => {
     return;
   }
 
-  const urlVal = document.getElementById('alarm-url').value.trim();
+  const urlVal     = document.getElementById('alarm-url').value.trim();
+  const isAutoStop = autostopToggle.classList.contains('on');
 
   const alarm = {
-    id:        Date.now(),
-    time:      `${pad(h)}:${pad(m)}`,
-    label:     document.getElementById('alarm-label').value || `アラーム ${pad(h)}:${pad(m)}`,
-    url:       urlVal,
-    days:      [...selectedDays],
-    audioUrl:  audioUrl,
-    audioName: audioBlob ? audioBlob.name : null,
-    volume:    parseInt(document.getElementById('volume').value, 10),
-    active:    true,
-    fired:     false,
+    id:         Date.now(),
+    time:       `${pad(h)}:${pad(m)}`,
+    label:      document.getElementById('alarm-label').value || `アラーム ${pad(h)}:${pad(m)}`,
+    url:        urlVal,
+    days:       [...selectedDays],
+    audioSrc:   audioSrc,
+    audioLabel: audioLabel,
+    volume:     parseInt(document.getElementById('volume').value, 10),
+    autoStop:   isAutoStop,
+    stopSec:    parseInt(autostopSecEl.value, 10),
+    active:     true,
+    fired:      false,
   };
 
   alarms.push(alarm);
   renderAlarms();
   showToast('アラームを追加しました');
 
-  // clear label field
   document.getElementById('alarm-label').value = '';
-
   if (urlVal) showPopupBanner();
 });
 
@@ -296,7 +432,6 @@ function renderAlarms() {
   const list  = document.getElementById('alarm-list');
   const empty = document.getElementById('empty-state');
 
-  // remove existing alarm items
   list.querySelectorAll('.alarm-item').forEach(el => el.remove());
 
   if (alarms.length === 0) {
@@ -305,10 +440,8 @@ function renderAlarms() {
   }
   empty.hidden = true;
 
-  // render newest first
   alarms.slice().reverse().forEach(alarm => {
-    const item = buildAlarmItem(alarm);
-    list.insertBefore(item, empty);
+    list.insertBefore(buildAlarmItem(alarm), empty);
   });
 }
 
@@ -321,14 +454,15 @@ function buildAlarmItem(alarm) {
 
   const metaParts = [
     daysStr,
-    alarm.audioName ? '音声あり' : 'ビープ音',
-    alarm.url       ? 'URL付き'  : null,
+    alarm.audioLabel || 'ビープ音',
+    alarm.autoStop   ? `${alarm.stopSec}秒で停止` : null,
+    alarm.url        ? 'URL付き' : null,
   ].filter(Boolean);
 
   const item = document.createElement('div');
-  item.className = 'alarm-item' + (alarm.active ? ' active' : '');
+  item.className  = 'alarm-item' + (alarm.active ? ' active' : '');
   item.dataset.id = alarm.id;
-  item.innerHTML = `
+  item.innerHTML  = `
     <div class="alarm-item-time">${alarm.time}</div>
     <div class="alarm-item-info">
       <div class="alarm-item-label">${alarm.label}</div>
@@ -361,6 +495,10 @@ function fireAlarm(alarm) {
   playAlarmSound(alarm);
   showFireOverlay(alarm);
 
+  if (alarm.autoStop && alarm.stopSec > 0) {
+    startAutoStopCountdown(alarm.stopSec);
+  }
+
   // disable one-shot alarms after firing
   if (alarm.days.length === 0) {
     alarm.active = false;
@@ -369,16 +507,20 @@ function fireAlarm(alarm) {
 }
 
 function playAlarmSound(alarm) {
-  if (alarm.audioUrl) {
-    fireAudio = new Audio(alarm.audioUrl);
+  if (alarm.audioSrc) {
+    fireAudio = new Audio(alarm.audioSrc);
     fireAudio.volume = alarm.volume / 100;
-    fireAudio.loop = true;
+    fireAudio.loop   = true;
     fireAudio.play().catch(() => {});
   } else {
     beep();
   }
 }
 
+
+/* ------------------------------------------------------------
+   Fire overlay
+   ------------------------------------------------------------ */
 function showFireOverlay(alarm) {
   document.getElementById('fire-time').textContent  = alarm.time;
   document.getElementById('fire-label').textContent = alarm.label;
@@ -387,12 +529,11 @@ function showFireOverlay(alarm) {
   const urlLabel = document.getElementById('fire-url-label');
 
   if (alarm.url) {
-    urlBtn.href        = alarm.url;
-    urlBtn.textContent = (alarm.url.length > 40 ? alarm.url.slice(0, 40) + '…' : alarm.url) + ' →';
-    urlBtn.hidden      = false;
+    urlBtn.href          = alarm.url;
+    urlBtn.textContent   = (alarm.url.length > 40 ? alarm.url.slice(0, 40) + '…' : alarm.url) + ' →';
+    urlBtn.hidden        = false;
     urlLabel.textContent = 'クリックでURLを開きます';
 
-    // attempt automatic open (succeeds if popups are already allowed)
     try {
       const newWindow = window.open(alarm.url, '_blank');
       if (newWindow) urlLabel.textContent = 'URLを自動で開きました';
@@ -404,11 +545,18 @@ function showFireOverlay(alarm) {
     urlLabel.textContent = '';
   }
 
-  document.getElementById('fire-overlay').classList.add('show');
+  const overlay = document.getElementById('fire-overlay');
+  overlay.hidden = false;
+  overlay.classList.add('show');
 }
 
 function dismissFireOverlay() {
-  document.getElementById('fire-overlay').classList.remove('show');
+  const overlay = document.getElementById('fire-overlay');
+  overlay.classList.remove('show');
+  overlay.hidden = true;
+
+  stopAutoStopCountdown();
+
   if (fireAudio) {
     fireAudio.pause();
     fireAudio.currentTime = 0;
@@ -417,3 +565,45 @@ function dismissFireOverlay() {
 }
 
 document.getElementById('fire-dismiss').addEventListener('click', dismissFireOverlay);
+
+
+/* ------------------------------------------------------------
+   Auto-stop countdown (progress bar + label)
+   ------------------------------------------------------------ */
+function startAutoStopCountdown(seconds) {
+  const autostopEl = document.getElementById('fire-autostop');
+  const barEl      = document.getElementById('fire-autostop-bar');
+  const labelEl    = document.getElementById('fire-autostop-label');
+
+  autostopEl.hidden = false;
+
+  // reset bar to full width, then animate to 0
+  barEl.style.transition = 'none';
+  barEl.style.width      = '100%';
+  barEl.getBoundingClientRect(); // force reflow
+  barEl.style.transition = `width ${seconds}s linear`;
+  barEl.style.width      = '0%';
+
+  let remaining = seconds;
+  labelEl.textContent = `${remaining}秒後に自動停止`;
+
+  autoStopTimer = setInterval(() => {
+    remaining -= 1;
+    if (remaining <= 0) {
+      clearInterval(autoStopTimer);
+      autoStopTimer = null;
+      dismissFireOverlay();
+    } else {
+      labelEl.textContent = `${remaining}秒後に自動停止`;
+    }
+  }, 1000);
+}
+
+function stopAutoStopCountdown() {
+  if (autoStopTimer) {
+    clearInterval(autoStopTimer);
+    autoStopTimer = null;
+  }
+  const autostopEl = document.getElementById('fire-autostop');
+  if (autostopEl) autostopEl.hidden = true;
+}
