@@ -13,10 +13,10 @@ const DAYS = ['日', '月', '火', '水', '木', '金', '土'];
 // 音声ファイルを追加・削除するときはここだけ編集してください。
 // ファイルは sounds/ ディレクトリに配置してください。
 const PRESET_SOUNDS = [
-  { id: 'morning', label: 'Morning Bell', file: 'sounds/「さあ、いくぞ！」.mp3' },
-  { id: 'digital', label: 'Digital Beep', file: 'sounds/「ついにお迎えが…」.mp3' },
-  { id: 'chime',   label: 'Chime',        file: 'sounds/「もう…だめ…」.mp3'   },
-  { id: 'birds',   label: 'Birds',        file: 'sounds/Pixel_Panic_Party.mp3'   },
+  { id: 'morning', label: '「さあ、いくぞ！」.mp3', file: 'sounds/「さあ、いくぞ！」.mp3' },
+  { id: 'digital', label: '「ついにお迎えが…」.mp3', file: 'sounds/「ついにお迎えが…」.mp3' },
+  { id: 'chime',   label: '「もう…だめ…」.mp3',        file: 'sounds/「もう…だめ…」.mp3'   },
+  { id: 'birds',   label: 'Pixel_Panic_Party.mp3',        file: 'sounds/Pixel_Panic_Party.mp3'   },
 ];
 
 const POPUP_GUIDE_STEPS = {
