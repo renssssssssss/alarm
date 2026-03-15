@@ -9,7 +9,15 @@
    ------------------------------------------------------------ */
 const DAYS = ['日', '月', '火', '水', '木', '金', '土'];
 
-const SOUNDS_JSON_PATH = 'sounds/sounds.json';
+// ---- プリセット音声リスト ----
+// 音声ファイルを追加・削除するときはここだけ編集してください。
+// ファイルは sounds/ ディレクトリに配置してください。
+const PRESET_SOUNDS = [
+  { id: 'morning', label: 'Morning Bell', file: 'sounds/「さあ、いくぞ！」.mp3' },
+  { id: 'digital', label: 'Digital Beep', file: 'sounds/「ついにお迎えが…」.mp3' },
+  { id: 'chime',   label: 'Chime',        file: 'sounds/「もう…だめ…」.mp3'   },
+  { id: 'birds',   label: 'Birds',        file: 'sounds/Pixel_Panic_Party.mp3'   },
+];
 
 const POPUP_GUIDE_STEPS = {
   chrome:  ['アドレスバー左の 🔒 アイコンをクリック', '「ポップアップとリダイレクト」→「許可」を選択'],
@@ -164,27 +172,18 @@ document.querySelectorAll('.audio-tab').forEach(tab => {
 
 
 /* ------------------------------------------------------------
-   Preset sound list (loaded from sounds/sounds.json)
+   Preset sound list (defined in PRESET_SOUNDS constant above)
    ------------------------------------------------------------ */
-async function loadPresets() {
+function loadPresets() {
   const container = document.getElementById('preset-list');
-  container.innerHTML = '<div class="preset-loading">読み込み中...</div>';
+  container.innerHTML = '';
 
-  let sounds;
-  try {
-    const res = await fetch(SOUNDS_JSON_PATH);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    sounds = await res.json();
-  } catch (e) {
-    container.innerHTML =
-      '<div class="preset-error">プリセットを読み込めませんでした。sounds/sounds.json を確認してください。</div>';
+  if (PRESET_SOUNDS.length === 0) {
+    container.innerHTML = '<div class="preset-error">プリセット音声が登録されていません。app.js の PRESET_SOUNDS を編集してください。</div>';
     return;
   }
 
-  container.innerHTML = '';
-
-  sounds.forEach(sound => {
-    const soundPath = `sounds/${sound.file}`;
+  PRESET_SOUNDS.forEach(sound => {
     const item = document.createElement('div');
     item.className  = 'preset-item';
     item.dataset.id = sound.id;
@@ -197,14 +196,14 @@ async function loadPresets() {
     // click row → select
     item.addEventListener('click', e => {
       if (e.target.classList.contains('preset-item-play')) return;
-      selectPreset(item, soundPath, sound.label);
+      selectPreset(item, sound.file, sound.label);
     });
 
     // preview button
     const playBtn = item.querySelector('.preset-item-play');
     playBtn.addEventListener('click', e => {
       e.stopPropagation();
-      togglePresetPreview(soundPath, playBtn);
+      togglePresetPreview(sound.file, playBtn);
     });
 
     container.appendChild(item);
