@@ -1,0 +1,670 @@
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  .app {
+    font-family: 'Syne', sans-serif;
+    padding: 1.5rem;
+    max-width: 520px;
+    margin: 0 auto;
+  }
+
+  .app-header {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 2rem;
+  }
+
+  .app-title {
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--color-text-primary);
+    letter-spacing: -0.5px;
+  }
+
+  .app-subtitle {
+    font-size: 13px;
+    color: var(--color-text-tertiary);
+    font-weight: 400;
+  }
+
+  .clock-display {
+    background: var(--color-background-secondary);
+    border-radius: var(--border-radius-lg);
+    padding: 1.5rem;
+    margin-bottom: 1.25rem;
+    text-align: center;
+    border: 0.5px solid var(--color-border-tertiary);
+  }
+
+  .clock-time {
+    font-family: 'DM Mono', monospace;
+    font-size: 48px;
+    font-weight: 500;
+    color: var(--color-text-primary);
+    letter-spacing: -1px;
+    line-height: 1;
+  }
+
+  .clock-date {
+    font-size: 12px;
+    color: var(--color-text-tertiary);
+    margin-top: 6px;
+  }
+
+  .card {
+    background: var(--color-background-primary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-lg);
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+  }
+
+  .card-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-text-tertiary);
+    margin-bottom: 10px;
+  }
+
+  .time-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .time-input {
+    font-family: 'DM Mono', monospace;
+    font-size: 32px;
+    font-weight: 500;
+    color: var(--color-text-primary);
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid var(--color-border-primary);
+    outline: none;
+    width: 80px;
+    text-align: center;
+    padding: 4px 0;
+    transition: border-color 0.15s;
+  }
+
+  .time-input:focus { border-bottom-color: #378ADD; }
+
+  .time-sep {
+    font-family: 'DM Mono', monospace;
+    font-size: 28px;
+    color: var(--color-text-secondary);
+    font-weight: 500;
+  }
+
+  .repeat-row {
+    display: flex;
+    gap: 6px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+  }
+
+  .day-btn {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 0.5px solid var(--color-border-secondary);
+    background: transparent;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .day-btn.on {
+    background: #185FA5;
+    border-color: #185FA5;
+    color: #E6F1FB;
+  }
+
+  .field-row {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .field-label {
+    font-size: 12px;
+    color: var(--color-text-secondary);
+    font-weight: 600;
+  }
+
+  .text-input {
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    padding: 8px 12px;
+    border: 0.5px solid var(--color-border-secondary);
+    border-radius: var(--border-radius-md);
+    background: var(--color-background-secondary);
+    color: var(--color-text-primary);
+    outline: none;
+    width: 100%;
+    transition: border-color 0.15s;
+  }
+
+  .text-input:focus { border-color: #378ADD; }
+
+  .file-zone {
+    border: 1.5px dashed var(--color-border-secondary);
+    border-radius: var(--border-radius-md);
+    padding: 14px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+    background: var(--color-background-secondary);
+  }
+
+  .file-zone:hover { border-color: #378ADD; }
+
+  .file-zone input[type=file] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  .file-zone-text {
+    font-size: 13px;
+    color: var(--color-text-secondary);
+  }
+
+  .file-zone-name {
+    font-size: 12px;
+    color: #185FA5;
+    font-weight: 600;
+    margin-top: 4px;
+  }
+
+  .volume-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  .vol-label {
+    font-size: 12px;
+    color: var(--color-text-secondary);
+    width: 52px;
+    flex-shrink: 0;
+  }
+
+  .vol-val {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--color-text-secondary);
+    width: 32px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  .divider { height: 0.5px; background: var(--color-border-tertiary); margin: 10px 0; }
+
+  .btn-row { display: flex; gap: 8px; margin-top: 1rem; }
+
+  .btn-primary {
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 10px 20px;
+    border-radius: var(--border-radius-md);
+    border: none;
+    background: #185FA5;
+    color: #E6F1FB;
+    cursor: pointer;
+    flex: 1;
+    transition: opacity 0.15s;
+  }
+
+  .btn-primary:hover { opacity: 0.88; }
+
+  .btn-secondary {
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 10px 16px;
+    border-radius: var(--border-radius-md);
+    border: 0.5px solid var(--color-border-secondary);
+    background: transparent;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .btn-secondary:hover { background: var(--color-background-secondary); }
+
+  .alarm-list { margin-top: 0.25rem; }
+
+  .alarm-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-md);
+    margin-bottom: 8px;
+    background: var(--color-background-primary);
+    transition: border-color 0.15s;
+  }
+
+  .alarm-item.active { border-color: #185FA5; }
+
+  .alarm-item-time {
+    font-family: 'DM Mono', monospace;
+    font-size: 20px;
+    font-weight: 500;
+    color: var(--color-text-primary);
+    min-width: 70px;
+  }
+
+  .alarm-item-info { flex: 1; min-width: 0; }
+
+  .alarm-item-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .alarm-item-meta {
+    font-size: 11px;
+    color: var(--color-text-tertiary);
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .alarm-toggle {
+    width: 36px;
+    height: 20px;
+    border-radius: 10px;
+    background: var(--color-border-secondary);
+    border: none;
+    cursor: pointer;
+    position: relative;
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+
+  .alarm-toggle.on { background: #185FA5; }
+
+  .alarm-toggle::after {
+    content: '';
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: white;
+    top: 3px;
+    left: 3px;
+    transition: transform 0.2s;
+  }
+
+  .alarm-toggle.on::after { transform: translateX(16px); }
+
+  .alarm-del {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--color-text-tertiary);
+    font-size: 16px;
+    padding: 4px;
+    border-radius: 4px;
+    flex-shrink: 0;
+    transition: color 0.15s;
+  }
+
+  .alarm-del:hover { color: #E24B4A; }
+
+  .badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 10px;
+    background: var(--color-background-info);
+    color: var(--color-text-info);
+    letter-spacing: 0.04em;
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(60px);
+    background: var(--color-background-primary);
+    border: 0.5px solid var(--color-border-secondary);
+    border-radius: var(--border-radius-md);
+    padding: 10px 18px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    transition: transform 0.3s;
+    z-index: 100;
+    white-space: nowrap;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  }
+
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  .section-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--color-text-secondary);
+    letter-spacing: 0.04em;
+    margin: 1.5rem 0 0.75rem;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 24px;
+    color: var(--color-text-tertiary);
+    font-size: 13px;
+    border: 0.5px dashed var(--color-border-tertiary);
+    border-radius: var(--border-radius-md);
+  }
+</style>
+
+<div class="app">
+  <div class="app-header">
+    <div class="app-title">ALARM</div>
+    <div class="app-subtitle">ブラウザアラーム</div>
+  </div>
+
+  <div class="clock-display">
+    <div class="clock-time" id="clock">--:--:--</div>
+    <div class="clock-date" id="date-display"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-label">アラーム時刻</div>
+    <div class="time-row">
+      <input class="time-input" type="number" id="alarm-h" min="0" max="23" value="07" placeholder="07">
+      <span class="time-sep">:</span>
+      <input class="time-input" type="number" id="alarm-m" min="0" max="59" value="00" placeholder="00">
+    </div>
+    <div class="repeat-row" id="days-row">
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-label">ラベル</div>
+    <div class="field-row">
+      <input class="text-input" type="text" id="alarm-label" placeholder="アラームの名前（省略可）">
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-label">URLを開く（省略可）</div>
+    <div class="field-row">
+      <input class="text-input" type="url" id="alarm-url" placeholder="https://example.com">
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-label">アラーム音</div>
+    <div class="file-zone" id="file-zone">
+      <input type="file" id="audio-file" accept="audio/*">
+      <div class="file-zone-text">クリックまたはドロップで音声ファイルを選択</div>
+      <div class="file-zone-name" id="file-name"></div>
+    </div>
+    <div class="volume-row">
+      <span class="vol-label">音量</span>
+      <input type="range" id="volume" min="0" max="100" value="80" step="1" style="flex:1;">
+      <span class="vol-val" id="vol-out">80%</span>
+    </div>
+    <div style="margin-top:10px; display:flex; gap:8px;">
+      <button class="btn-secondary" id="preview-btn" style="font-size:12px; padding:6px 14px;">▶ プレビュー</button>
+      <button class="btn-secondary" id="stop-btn" style="font-size:12px; padding:6px 14px; display:none;">■ 停止</button>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn-primary" id="add-btn">＋ アラームを追加</button>
+  </div>
+
+  <div class="section-title">設定済みアラーム</div>
+  <div class="alarm-list" id="alarm-list">
+    <div class="empty-state" id="empty-state">アラームがありません</div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const DAYS = ['日','月','火','水','木','金','土'];
+let alarms = [];
+let audioBlob = null;
+let audioUrl = null;
+let previewAudio = null;
+let tickInterval = null;
+
+const daysRow = document.getElementById('days-row');
+const selectedDays = new Set();
+
+DAYS.forEach((d, i) => {
+  const btn = document.createElement('button');
+  btn.className = 'day-btn';
+  btn.textContent = d;
+  btn.dataset.day = i;
+  btn.onclick = () => {
+    if (selectedDays.has(i)) { selectedDays.delete(i); btn.classList.remove('on'); }
+    else { selectedDays.add(i); btn.classList.add('on'); }
+  };
+  daysRow.appendChild(btn);
+});
+
+function pad(n) { return String(n).padStart(2, '0'); }
+
+function updateClock() {
+  const now = new Date();
+  document.getElementById('clock').textContent = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+  const wd = DAYS[now.getDay()];
+  document.getElementById('date-display').textContent = `${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日 (${wd})`;
+  checkAlarms(now);
+}
+
+setInterval(updateClock, 1000);
+updateClock();
+
+document.getElementById('volume').addEventListener('input', e => {
+  document.getElementById('vol-out').textContent = e.target.value + '%';
+});
+
+document.getElementById('audio-file').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  audioBlob = file;
+  if (audioUrl) URL.revokeObjectURL(audioUrl);
+  audioUrl = URL.createObjectURL(file);
+  document.getElementById('file-name').textContent = file.name;
+});
+
+document.getElementById('file-zone').addEventListener('dragover', e => { e.preventDefault(); });
+document.getElementById('file-zone').addEventListener('drop', e => {
+  e.preventDefault();
+  const file = e.dataTransfer.files[0];
+  if (file && file.type.startsWith('audio/')) {
+    audioBlob = file;
+    if (audioUrl) URL.revokeObjectURL(audioUrl);
+    audioUrl = URL.createObjectURL(file);
+    document.getElementById('file-name').textContent = file.name;
+  }
+});
+
+document.getElementById('preview-btn').addEventListener('click', () => {
+  if (!audioUrl) { showToast('音声ファイルを選択してください'); return; }
+  stopPreview();
+  previewAudio = new Audio(audioUrl);
+  previewAudio.volume = parseInt(document.getElementById('volume').value) / 100;
+  previewAudio.play();
+  previewAudio.onended = () => {
+    document.getElementById('stop-btn').style.display = 'none';
+    document.getElementById('preview-btn').style.display = '';
+  };
+  document.getElementById('preview-btn').style.display = 'none';
+  document.getElementById('stop-btn').style.display = '';
+});
+
+document.getElementById('stop-btn').addEventListener('click', () => {
+  stopPreview();
+});
+
+function stopPreview() {
+  if (previewAudio) { previewAudio.pause(); previewAudio.currentTime = 0; previewAudio = null; }
+  document.getElementById('stop-btn').style.display = 'none';
+  document.getElementById('preview-btn').style.display = '';
+}
+
+document.getElementById('add-btn').addEventListener('click', () => {
+  const h = parseInt(document.getElementById('alarm-h').value);
+  const m = parseInt(document.getElementById('alarm-m').value);
+  if (isNaN(h) || isNaN(m) || h < 0 || h > 23 || m < 0 || m > 59) {
+    showToast('時刻を正しく入力してください'); return;
+  }
+  const alarm = {
+    id: Date.now(),
+    time: `${pad(h)}:${pad(m)}`,
+    label: document.getElementById('alarm-label').value || `アラーム ${pad(h)}:${pad(m)}`,
+    url: document.getElementById('alarm-url').value,
+    days: [...selectedDays],
+    audioUrl: audioUrl,
+    audioName: audioBlob ? audioBlob.name : null,
+    volume: parseInt(document.getElementById('volume').value),
+    active: true,
+    fired: false
+  };
+  alarms.push(alarm);
+  renderAlarms();
+  showToast('アラームを追加しました');
+  document.getElementById('alarm-label').value = '';
+});
+
+function renderAlarms() {
+  const list = document.getElementById('alarm-list');
+  const empty = document.getElementById('empty-state');
+  if (alarms.length === 0) { empty.style.display = ''; return; }
+  empty.style.display = 'none';
+  list.querySelectorAll('.alarm-item').forEach(el => el.remove());
+  alarms.slice().reverse().forEach(alarm => {
+    const item = document.createElement('div');
+    item.className = 'alarm-item' + (alarm.active ? ' active' : '');
+    item.dataset.id = alarm.id;
+
+    const daysStr = alarm.days.length === 0 ? '一度のみ' : alarm.days.length === 7 ? '毎日' : alarm.days.map(d => DAYS[d]).join(' ');
+    const meta = [daysStr, alarm.audioName ? '音声あり' : 'デフォルト音', alarm.url ? '📎 URL付き' : ''].filter(Boolean).join(' · ');
+
+    item.innerHTML = `
+      <div class="alarm-item-time">${alarm.time}</div>
+      <div class="alarm-item-info">
+        <div class="alarm-item-label">${alarm.label}</div>
+        <div class="alarm-item-meta">${meta}</div>
+      </div>
+      <button class="alarm-toggle ${alarm.active ? 'on' : ''}" data-id="${alarm.id}" title="オン/オフ"></button>
+      <button class="alarm-del" data-id="${alarm.id}" title="削除">✕</button>
+    `;
+    list.insertBefore(item, empty.nextSibling);
+  });
+
+  list.querySelectorAll('.alarm-toggle').forEach(btn => {
+    btn.onclick = () => {
+      const a = alarms.find(x => x.id == btn.dataset.id);
+      if (a) { a.active = !a.active; a.fired = false; renderAlarms(); }
+    };
+  });
+
+  list.querySelectorAll('.alarm-del').forEach(btn => {
+    btn.onclick = () => {
+      alarms = alarms.filter(x => x.id != btn.dataset.id);
+      renderAlarms();
+      showToast('アラームを削除しました');
+    };
+  });
+}
+
+function checkAlarms(now) {
+  const curTime = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+  const curDay = now.getDay();
+  const curSec = now.getSeconds();
+
+  alarms.forEach(alarm => {
+    if (!alarm.active) return;
+    if (alarm.time !== curTime) { alarm.fired = false; return; }
+    if (alarm.fired) return;
+    const dayMatch = alarm.days.length === 0 || alarm.days.includes(curDay);
+    if (!dayMatch) return;
+    if (curSec < 3) {
+      alarm.fired = true;
+      fireAlarm(alarm);
+    }
+  });
+}
+
+function fireAlarm(alarm) {
+  if (alarm.audioUrl) {
+    const audio = new Audio(alarm.audioUrl);
+    audio.volume = alarm.volume / 100;
+    audio.play().catch(() => {});
+    setTimeout(() => { audio.pause(); }, 30000);
+  } else {
+    beep();
+  }
+
+  if (alarm.url) {
+    try {
+      const u = new URL(alarm.url);
+      setTimeout(() => { window.open(u.href, '_blank'); }, 500);
+    } catch(e) {}
+  }
+
+  showToast(`⏰ ${alarm.label}`);
+
+  if (alarm.days.length === 0) {
+    setTimeout(() => {
+      alarm.active = false;
+      renderAlarms();
+    }, 1000);
+  }
+}
+
+function beep() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.frequency.value = 880;
+    osc.type = 'sine';
+    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.5);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 1.5);
+  } catch(e) {}
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+renderAlarms();
+</script>
