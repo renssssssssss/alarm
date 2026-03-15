@@ -1,0 +1,567 @@
+/* ============================================================
+   ALARM APP — style.css
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   Reset & base
+   ------------------------------------------------------------ */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Syne', sans-serif;
+  background: #f5f5f3;
+  min-height: 100vh;
+}
+
+
+/* ------------------------------------------------------------
+   Layout
+   ------------------------------------------------------------ */
+.app {
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.app-header {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 1.5rem;
+}
+
+.app-title {
+  font-size: 26px;
+  font-weight: 800;
+  color: #1a1a18;
+  letter-spacing: -0.5px;
+}
+
+.app-subtitle {
+  font-size: 13px;
+  color: #888780;
+}
+
+.section-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #5f5e5a;
+  letter-spacing: 0.04em;
+  margin: 1.5rem 0 0.75rem;
+}
+
+
+/* ------------------------------------------------------------
+   Card
+   ------------------------------------------------------------ */
+.card {
+  background: #fff;
+  border: 0.5px solid rgba(0,0,0,0.12);
+  border-radius: 12px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.card-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #888780;
+  margin-bottom: 10px;
+}
+
+
+/* ------------------------------------------------------------
+   Clock
+   ------------------------------------------------------------ */
+.clock-display {
+  background: #f1efe8;
+  border: 0.5px solid rgba(0,0,0,0.10);
+  border-radius: 12px;
+  padding: 1.25rem;
+  margin-bottom: 1.25rem;
+  text-align: center;
+}
+
+.clock-time {
+  font-family: 'DM Mono', monospace;
+  font-size: 46px;
+  font-weight: 500;
+  color: #1a1a18;
+  letter-spacing: -1px;
+  line-height: 1;
+}
+
+.clock-date {
+  font-size: 12px;
+  color: #888780;
+  margin-top: 5px;
+}
+
+
+/* ------------------------------------------------------------
+   Time inputs
+   ------------------------------------------------------------ */
+.time-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.time-input {
+  font-family: 'DM Mono', monospace;
+  font-size: 32px;
+  font-weight: 500;
+  color: #1a1a18;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid rgba(0,0,0,0.25);
+  outline: none;
+  width: 80px;
+  text-align: center;
+  padding: 4px 0;
+  transition: border-color 0.15s;
+  /* hide number spinners */
+  -moz-appearance: textfield;
+}
+.time-input::-webkit-inner-spin-button,
+.time-input::-webkit-outer-spin-button { -webkit-appearance: none; }
+.time-input:focus { border-bottom-color: #378ADD; }
+
+.time-sep {
+  font-family: 'DM Mono', monospace;
+  font-size: 28px;
+  font-weight: 500;
+  color: #5f5e5a;
+}
+
+
+/* ------------------------------------------------------------
+   Day-of-week buttons
+   ------------------------------------------------------------ */
+.repeat-row {
+  display: flex;
+  gap: 6px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.day-btn {
+  font-family: 'Syne', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 0.5px solid rgba(0,0,0,0.22);
+  background: transparent;
+  color: #5f5e5a;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.day-btn.on {
+  background: #185FA5;
+  border-color: #185FA5;
+  color: #E6F1FB;
+}
+
+
+/* ------------------------------------------------------------
+   Text inputs
+   ------------------------------------------------------------ */
+.text-input {
+  font-family: 'Syne', sans-serif;
+  font-size: 14px;
+  padding: 8px 12px;
+  border: 0.5px solid rgba(0,0,0,0.22);
+  border-radius: 8px;
+  background: #f1efe8;
+  color: #1a1a18;
+  outline: none;
+  width: 100%;
+  transition: border-color 0.15s;
+}
+
+.text-input:focus { border-color: #378ADD; }
+
+
+/* ------------------------------------------------------------
+   Audio file zone
+   ------------------------------------------------------------ */
+.file-zone {
+  border: 1.5px dashed rgba(0,0,0,0.22);
+  border-radius: 8px;
+  padding: 14px;
+  text-align: center;
+  cursor: pointer;
+  position: relative;
+  background: #f1efe8;
+  transition: border-color 0.15s;
+}
+
+.file-zone:hover { border-color: #378ADD; }
+
+.file-zone input[type="file"] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.file-zone-text {
+  font-size: 13px;
+  color: #5f5e5a;
+}
+
+.file-zone-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: #185FA5;
+  margin-top: 4px;
+}
+
+
+/* ------------------------------------------------------------
+   Volume slider
+   ------------------------------------------------------------ */
+.volume-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.vol-label {
+  font-size: 12px;
+  color: #5f5e5a;
+  width: 52px;
+  flex-shrink: 0;
+}
+
+.volume-row input[type="range"] { flex: 1; }
+
+.vol-val {
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  color: #5f5e5a;
+  width: 36px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+
+/* ------------------------------------------------------------
+   Preview row
+   ------------------------------------------------------------ */
+.preview-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+
+/* ------------------------------------------------------------
+   Buttons
+   ------------------------------------------------------------ */
+.btn-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 1rem;
+}
+
+.btn-primary {
+  font-family: 'Syne', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  background: #185FA5;
+  color: #E6F1FB;
+  cursor: pointer;
+  flex: 1;
+  transition: opacity 0.15s;
+}
+.btn-primary:hover { opacity: 0.88; }
+
+.btn-secondary {
+  font-family: 'Syne', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: 0.5px solid rgba(0,0,0,0.22);
+  background: transparent;
+  color: #5f5e5a;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn-secondary:hover { background: #f1efe8; }
+
+
+/* ------------------------------------------------------------
+   Alarm list items
+   ------------------------------------------------------------ */
+.alarm-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 0.5px solid rgba(0,0,0,0.12);
+  border-radius: 8px;
+  margin-bottom: 8px;
+  background: #fff;
+  transition: border-color 0.15s;
+}
+
+.alarm-item.active { border-color: #185FA5; }
+
+.alarm-item-time {
+  font-family: 'DM Mono', monospace;
+  font-size: 20px;
+  font-weight: 500;
+  color: #1a1a18;
+  min-width: 70px;
+}
+
+.alarm-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.alarm-item-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a1a18;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.alarm-item-meta {
+  font-size: 11px;
+  color: #888780;
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* toggle switch */
+.alarm-toggle {
+  width: 36px;
+  height: 20px;
+  border-radius: 10px;
+  background: rgba(0,0,0,0.18);
+  border: none;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+.alarm-toggle.on { background: #185FA5; }
+.alarm-toggle::after {
+  content: '';
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  top: 3px;
+  left: 3px;
+  transition: transform 0.2s;
+}
+.alarm-toggle.on::after { transform: translateX(16px); }
+
+/* delete button */
+.alarm-del {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #888780;
+  font-size: 16px;
+  padding: 4px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  transition: color 0.15s;
+}
+.alarm-del:hover { color: #E24B4A; }
+
+/* empty state */
+.empty-state {
+  text-align: center;
+  padding: 24px;
+  color: #888780;
+  font-size: 13px;
+  border: 0.5px dashed rgba(0,0,0,0.15);
+  border-radius: 8px;
+}
+
+
+/* ------------------------------------------------------------
+   Popup permission banner
+   ------------------------------------------------------------ */
+.popup-banner {
+  background: #FAEEDA;
+  border: 0.5px solid #EF9F27;
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-bottom: 1rem;
+  display: none; /* shown via JS */
+}
+
+.popup-banner.show { display: block; }
+
+.popup-banner-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #633806;
+  margin-bottom: 6px;
+}
+
+.popup-banner-body {
+  font-size: 12px;
+  color: #854F0B;
+  line-height: 1.6;
+}
+
+.banner-steps {
+  list-style: none;
+  margin-top: 8px;
+  padding-left: 0;
+}
+
+.banner-steps li {
+  font-size: 12px;
+  color: #854F0B;
+  padding: 2px 0 2px 16px;
+  position: relative;
+}
+.banner-steps li::before {
+  content: '→';
+  position: absolute;
+  left: 0;
+  font-size: 11px;
+}
+
+.popup-banner-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.banner-btn {
+  font-family: 'Syne', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.banner-btn:hover { opacity: 0.82; }
+
+.banner-btn-chrome  { background: #185FA5; color: #E6F1FB; }
+.banner-btn-copy    { background: #f1efe8; color: #1a1a18; border: 0.5px solid rgba(0,0,0,0.18); }
+.banner-btn-dismiss { background: transparent; color: #5f5e5a; border: 0.5px solid rgba(0,0,0,0.15); }
+
+
+/* ------------------------------------------------------------
+   Alarm fire overlay
+   ------------------------------------------------------------ */
+.fire-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(24, 95, 165, 0.94);
+  display: none; /* toggled via .show */
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 1.5rem;
+  z-index: 200;
+}
+
+.fire-overlay.show { display: flex; }
+
+.fire-time {
+  font-family: 'DM Mono', monospace;
+  font-size: 72px;
+  font-weight: 500;
+  color: #E6F1FB;
+  letter-spacing: -2px;
+  line-height: 1;
+}
+
+.fire-label {
+  font-size: 18px;
+  font-weight: 700;
+  color: #B5D4F4;
+}
+
+.fire-url-label {
+  font-size: 12px;
+  color: #85B7EB;
+}
+
+.fire-url-btn {
+  font-family: 'Syne', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  padding: 14px 32px;
+  border-radius: 12px;
+  background: #E6F1FB;
+  color: #185FA5;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  text-align: center;
+  transition: opacity 0.15s;
+}
+.fire-url-btn:hover { opacity: 0.9; }
+
+.fire-dismiss {
+  font-family: 'Syne', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #85B7EB;
+  background: transparent;
+  border: 0.5px solid #378ADD;
+  padding: 8px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.fire-dismiss:hover { opacity: 0.8; }
+
+
+/* ------------------------------------------------------------
+   Toast notification
+   ------------------------------------------------------------ */
+.toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(60px);
+  background: #fff;
+  border: 0.5px solid rgba(0,0,0,0.18);
+  border-radius: 8px;
+  padding: 10px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a1a18;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  transition: transform 0.3s;
+  z-index: 300;
+}
+
+.toast.show { transform: translateX(-50%) translateY(0); }
