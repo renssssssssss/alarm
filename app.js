@@ -39,6 +39,10 @@ let previewAudio = null;
 let fireAudio    = null;
 let autoStopTimer = null;
 
+// 同時刻発火キュー
+let pendingQueue = [];   // 発火待ちアラームの配列
+let currentAlarm = null; // 現在オーバーレイに表示中のアラーム
+
 const selectedDays = new Set();
 
 
@@ -120,7 +124,7 @@ function checkAlarms(now) {
     // fire within the first 3 seconds of the minute
     if (curSec < 3) {
       alarm.fired = true;
-      fireAlarm(alarm);
+      enqueueAlarm(alarm);
     }
   });
 }
@@ -488,24 +492,49 @@ function buildAlarmItem(alarm) {
 
 
 /* ------------------------------------------------------------
-   Fire alarm
+   Fire alarm — queue-based multi-alarm handling
    ------------------------------------------------------------ */
-function fireAlarm(alarm) {
-  playAlarmSound(alarm);
-  showFireOverlay(alarm);
 
-  if (alarm.autoStop && alarm.stopSec > 0) {
-    startAutoStopCountdown(alarm.stopSec);
-  }
-
-  // disable one-shot alarms after firing
+// 同時刻に複数アラームが発火した場合、キューに積んで1件ずつ処理する
+function enqueueAlarm(alarm) {
+  // one-shot アラームは即座に無効化
   if (alarm.days.length === 0) {
     alarm.active = false;
     renderAlarms();
   }
+
+  pendingQueue.push(alarm);
+
+  // オーバーレイが表示されていない場合のみ即座に処理開始
+  if (!currentAlarm) {
+    processNextAlarm();
+  }
+}
+
+// キューから次のアラームを取り出して表示する
+function processNextAlarm() {
+  if (pendingQueue.length === 0) {
+    currentAlarm = null;
+    return;
+  }
+
+  currentAlarm = pendingQueue.shift();
+  playAlarmSound(currentAlarm);
+  showFireOverlay(currentAlarm);
+
+  if (currentAlarm.autoStop && currentAlarm.stopSec > 0) {
+    startAutoStopCountdown(currentAlarm.stopSec);
+  }
 }
 
 function playAlarmSound(alarm) {
+  // 前の音声が残っていれば停止
+  if (fireAudio) {
+    fireAudio.pause();
+    fireAudio.currentTime = 0;
+    fireAudio = null;
+  }
+
   if (alarm.audioSrc) {
     fireAudio = new Audio(alarm.audioSrc);
     fireAudio.volume = alarm.volume / 100;
@@ -523,6 +552,9 @@ function playAlarmSound(alarm) {
 function showFireOverlay(alarm) {
   document.getElementById('fire-time').textContent  = alarm.time;
   document.getElementById('fire-label').textContent = alarm.label;
+
+  // キュー残数バッジを更新
+  updateQueueBadge();
 
   const urlBtn   = document.getElementById('fire-url-btn');
   const urlLabel = document.getElementById('fire-url-label');
@@ -549,11 +581,21 @@ function showFireOverlay(alarm) {
   overlay.classList.add('show');
 }
 
-function dismissFireOverlay() {
-  const overlay = document.getElementById('fire-overlay');
-  overlay.classList.remove('show');
-  overlay.hidden = true;
+// キュー残数バッジの表示を更新する
+function updateQueueBadge() {
+  const badge = document.getElementById('fire-queue-badge');
+  if (!badge) return;
+  const remaining = pendingQueue.length;
+  if (remaining > 0) {
+    badge.textContent = `他 ${remaining} 件のアラームが待機中`;
+    badge.hidden = false;
+  } else {
+    badge.hidden = true;
+  }
+}
 
+// 現在のアラームを停止して次へ進む（または閉じる）
+function dismissCurrentAlarm() {
   stopAutoStopCountdown();
 
   if (fireAudio) {
@@ -561,9 +603,20 @@ function dismissFireOverlay() {
     fireAudio.currentTime = 0;
     fireAudio = null;
   }
+
+  if (pendingQueue.length > 0) {
+    // 次のアラームを処理
+    processNextAlarm();
+  } else {
+    // すべて処理済み — オーバーレイを閉じる
+    currentAlarm = null;
+    const overlay = document.getElementById('fire-overlay');
+    overlay.classList.remove('show');
+    overlay.hidden = true;
+  }
 }
 
-document.getElementById('fire-dismiss').addEventListener('click', dismissFireOverlay);
+document.getElementById('fire-dismiss').addEventListener('click', dismissCurrentAlarm);
 
 
 /* ------------------------------------------------------------
@@ -591,7 +644,7 @@ function startAutoStopCountdown(seconds) {
     if (remaining <= 0) {
       clearInterval(autoStopTimer);
       autoStopTimer = null;
-      dismissFireOverlay();
+      dismissCurrentAlarm();
     } else {
       labelEl.textContent = `${remaining}秒後に自動停止`;
     }

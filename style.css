@@ -731,3 +731,17 @@ body {
   font-size: 12px;
   color: #85B7EB;
 }
+
+
+/* ------------------------------------------------------------
+   Fire overlay — queue badge & dismiss button states
+   ------------------------------------------------------------ */
+.fire-queue-badge {
+  font-size: 12px;
+  font-weight: 600;
+  color: #B5D4F4;
+  background: rgba(255, 255, 255, 0.12);
+  border: 0.5px solid rgba(255, 255, 255, 0.25);
+  border-radius: 20px;
+  padding: 4px 14px;
+}
