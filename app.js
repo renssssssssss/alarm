@@ -47,6 +47,35 @@ const selectedDays = new Set();
 
 
 /* ------------------------------------------------------------
+   localStorage persistence
+   ------------------------------------------------------------ */
+const STORAGE_KEY = 'alarm-app-alarms';
+
+function saveAlarms() {
+  const serializable = alarms.map(a => {
+    const isBlobUrl = typeof a.audioSrc === 'string' && a.audioSrc.startsWith('blob:');
+    return {
+      ...a,
+      audioSrc:   isBlobUrl ? null : a.audioSrc,
+      audioLabel: isBlobUrl ? null : a.audioLabel,
+      fired: false,
+    };
+  });
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(serializable)); } catch (e) {}
+}
+
+function loadAlarms() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed)) { alarms = parsed; renderAlarms(); }
+  } catch (e) {}
+}
+
+
+
+/* ------------------------------------------------------------
    Utility helpers
    ------------------------------------------------------------ */
 function pad(n) {
@@ -131,6 +160,7 @@ function checkAlarms(now) {
 
 setInterval(updateClock, 1000);
 updateClock();
+loadAlarms(); // 保存済みアラームを復元
 
 
 /* ------------------------------------------------------------
@@ -428,6 +458,7 @@ document.getElementById('add-btn').addEventListener('click', () => {
 
   alarms.push(alarm);
   renderAlarms();
+  saveAlarms();
   showToast('アラームを追加しました');
 
   document.getElementById('alarm-label').value = '';
@@ -487,11 +518,13 @@ function buildAlarmItem(alarm) {
     alarm.active = !alarm.active;
     alarm.fired  = false;
     renderAlarms();
+    saveAlarms();
   });
 
   item.querySelector('.alarm-del').addEventListener('click', () => {
     alarms = alarms.filter(a => a.id !== alarm.id);
     renderAlarms();
+    saveAlarms();
     showToast('アラームを削除しました');
   });
 
@@ -509,6 +542,7 @@ function enqueueAlarm(alarm) {
   if (alarm.days.length === 0) {
     alarm.active = false;
     renderAlarms();
+    saveAlarms();
   }
 
   pendingQueue.push(alarm);
