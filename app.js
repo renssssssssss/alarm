@@ -327,10 +327,15 @@ const autostopToggle = document.getElementById('autostop-toggle');
 const autostopDetail = document.getElementById('autostop-detail');
 const autostopSecEl  = document.getElementById('autostop-sec');
 const autostopSecOut = document.getElementById('autostop-sec-out');
+const originalToggle = document.getElementById('original-toggle');
 
 autostopToggle.addEventListener('click', () => {
   const isOn = autostopToggle.classList.toggle('on');
   autostopDetail.hidden = !isOn;
+});
+
+originalToggle.addEventListener('click', () => {
+  originalToggle.classList.toggle('on');
 });
 
 autostopSecEl.addEventListener('input', () => {
@@ -403,6 +408,7 @@ document.getElementById('add-btn').addEventListener('click', () => {
 
   const urlVal     = document.getElementById('alarm-url').value.trim();
   const isAutoStop = autostopToggle.classList.contains('on');
+  const isLoop     = originalToggle.classList.contains('on');
 
   const alarm = {
     id:         Date.now(),
@@ -415,6 +421,7 @@ document.getElementById('add-btn').addEventListener('click', () => {
     volume:     parseInt(document.getElementById('volume').value, 10),
     autoStop:   isAutoStop,
     stopSec:    parseInt(autostopSecEl.value, 10),
+    loop:       isLoop,
     active:     true,
     fired:      false,
   };
@@ -458,6 +465,7 @@ function buildAlarmItem(alarm) {
   const metaParts = [
     daysStr,
     alarm.audioLabel || 'ビープ音',
+    alarm.loop === false ? 'ループなし' : null,
     alarm.autoStop   ? `${alarm.stopSec}秒で停止` : null,
     alarm.url        ? 'URL付き' : null,
   ].filter(Boolean);
@@ -545,7 +553,7 @@ function playAlarmSound(alarm) {
   if (alarm.audioSrc) {
     fireAudio = new Audio(alarm.audioSrc);
     fireAudio.volume = alarm.volume / 100;
-    fireAudio.loop   = true;
+    fireAudio.loop   = alarm.loop !== false; // デフォルトtrue、明示的falseのみ無効
     fireAudio.play().catch(() => {});
   } else {
     beep();
